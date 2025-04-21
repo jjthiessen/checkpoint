@@ -1,0 +1,9 @@
+.direnv/
+
+bin/
+obj/
+result
+
+.env
+
+!.gitignore
