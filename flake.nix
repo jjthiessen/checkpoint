@@ -10,7 +10,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "git+file:/home/jono/src/github/nixpkgs?ref=nixos-unstable";
 
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";

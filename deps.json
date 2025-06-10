@@ -16,8 +16,8 @@
   },
   {
     "pname": "Microsoft.Playwright",
-    "version": "1.50.0",
-    "hash": "sha256-07lJ0sPGEU1lxGuUqcmt7qTNjpiS0imzj5+8i3ar7+A="
+    "version": "1.52.0",
+    "hash": "sha256-wxHhsy/rrV9StEcvRvg8vRGmGmnNWYtVCdBclF/isxc="
   },
   {
     "pname": "System.ComponentModel.Annotations",
