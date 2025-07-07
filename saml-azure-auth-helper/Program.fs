@@ -8,12 +8,13 @@ open System.Threading.Tasks
 
 type PlaywrightError = string
 
-let timeout = 5_000f
+let delay = 2_000f
+let timeout = 10_000f
 
 let setup () : Task<Result<(IPlaywright * IBrowser * IBrowserContext), PlaywrightError>> =
     taskResult {
         let! playwright = Playwright.CreateAsync ()
-        let! browser = playwright.Chromium.LaunchAsync(BrowserTypeLaunchOptions(Headless = false, SlowMo = 2000f))
+        let! browser = playwright.Chromium.LaunchAsync(BrowserTypeLaunchOptions(Headless = false, SlowMo = delay))
         let! context = browser.NewContextAsync ()
         return (playwright, browser, context)
     }
@@ -36,12 +37,15 @@ let openLogin (url: string) (context: IBrowserContext) : Task<Result<IPage, Play
         return popupPage
     }
 
-let doLogin (page: IPage) : Task<Result<IPage, PlaywrightError>> =
+let doLogin (page: IPage) : Task<Result<unit, PlaywrightError>> =
     let username = Console.ReadLine ()
     let password = Console.ReadLine ()
     let totp = Console.ReadLine ()
 
     taskResult {
+        let isClosed = new TaskCompletionSource<unit>()
+        page.Close.Add(fun _ -> isClosed.SetResult())
+
         do!
             System.Text.RegularExpressions.Regex.IsMatch(page.Url, @"^https://login\.microsoftonline\.com/") // DO NOT DELETE THE TRAILING SLASH!
             |> Result.requireTrue "The SAML Service Provider appears to have not redirected to Microsoft. It is not safe to continue."
@@ -60,7 +64,9 @@ let doLogin (page: IPage) : Task<Result<IPage, PlaywrightError>> =
 
         do! page.WaitForLoadStateAsync(LoadState.Load, PageWaitForLoadStateOptions(Timeout = timeout))
 
-        return page
+        return! isClosed.Task.WaitAsync(timeout = TimeSpan.FromMilliseconds(float timeout))
+            |> TaskResult.ofTask
+            |> TaskResult.catch (_.Message)
     }
 
 // For troubleshooting
