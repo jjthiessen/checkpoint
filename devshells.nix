@@ -1,6 +1,8 @@
-{ self, ... }: {
+{ self, ... }:
+{
   perSystem =
-    { pkgs, system, ... }: let
+    { pkgs, system, ... }:
+    let
       packages = self.packages.${system};
       helper = packages.saml-azure-auth-helper;
 
@@ -10,17 +12,21 @@
 
       helperDeps = pkgs.dotnetCorePackages.mkNugetDeps {
         name = helper.pname;
-        sourceFile = [ ./deps.manual.json ./deps.json ] |> concatJSONFiles "deps.merged.json";
+        sourceFile =
+          [
+            ./deps.manual.json
+            ./deps.json
+          ]
+          |> concatJSONFiles "deps.merged.json";
       };
-    in {
+    in
+    {
       devShells = {
         default = pkgs.mkShell {
           NUGET_PACKAGES = "${helperDeps}/share/nuget/packages";
           PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
 
-          buildInputs = helper.buildInputs
-            ++ helper.nativeBuildInputs
-            ++ helper.propagatedBuildInputs;
+          buildInputs = helper.buildInputs ++ helper.nativeBuildInputs ++ helper.propagatedBuildInputs;
 
           packages = [
             pkgs.fsautocomplete
